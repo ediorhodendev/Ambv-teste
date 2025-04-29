@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+
 import { ProductService } from '../../../core/services/products.service';
 import { Product } from '../../../core/models/product.model';
 
@@ -25,6 +26,9 @@ import { Product } from '../../../core/models/product.model';
 export class ProductListComponent implements OnInit {
   products: Product[] = [];
   displayedColumns: string[] = ['name', 'price', 'actions'];
+
+  pageIndex = 0;
+  pageSize = 10;
 
   constructor(
     private productService: ProductService,
@@ -59,9 +63,29 @@ export class ProductListComponent implements OnInit {
     this.router.navigate(['/products/edit', id]);
   }
 
-  
-
   navigateToDetails(id: string): void {
     this.router.navigate(['/products/details', id]);
+  }
+
+  // Paginação
+  get totalPages(): number {
+    return Math.ceil(this.products.length / this.pageSize);
+  }
+
+  get pagedProducts(): Product[] {
+    const start = this.pageIndex * this.pageSize;
+    return this.products.slice(start, start + this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.pageIndex > 0) {
+      this.pageIndex--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageIndex < this.totalPages - 1) {
+      this.pageIndex++;
+    }
   }
 }
