@@ -110,4 +110,4 @@ Estes eventos são registrados via `ILogger` para simular integração com mensa
 
 ---
 
-Se quiser a versão em PDF com layout corporativo, você pode [baixar aqui](./docs/Ambev_Developer_Evaluation_Final.pdf).
+
