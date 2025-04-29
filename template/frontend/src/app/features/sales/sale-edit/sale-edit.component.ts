@@ -1,18 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+
 import { SaleService } from '../../../core/services/sales.service';
 import { CustomerService } from '../../../core/services/customers.service';
 import { BranchesService } from '../../../core/services/branches.service';
-import { Customer } from '../../../core/models/customer.model';
-import { Branch } from '../../../core/models/branch.model';
+import { ProductService } from '../../../core/services/products.service';
 
 @Component({
   selector: 'app-sale-edit',
@@ -21,21 +22,26 @@ import { Branch } from '../../../core/models/branch.model';
   styleUrls: ['./sale-edit.component.scss'],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     RouterModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule,
     MatSelectModule,
-    MatCheckboxModule
+    MatButtonModule,
+    MatCheckboxModule,
+    MatIconModule
   ]
 })
 export class SaleEditComponent implements OnInit {
   form!: FormGroup;
   id!: string;
-  customers: Customer[] = [];
-  branches: Branch[] = [];
+  customers: any[] = [];
+  branches: any[] = [];
+  products: any[] = [];
+
+  discountMessage = '';
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -43,15 +49,17 @@ export class SaleEditComponent implements OnInit {
     private router: Router,
     private saleService: SaleService,
     private customerService: CustomerService,
-    private branchService: BranchesService
+    private branchService: BranchesService,
+    private productService: ProductService
   ) {}
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id')!;
     this.initializeForm();
-    this.loadSale();
     this.loadCustomers();
     this.loadBranches();
+    this.loadProducts();
+    this.loadSale();
   }
 
   initializeForm(): void {
@@ -59,52 +67,122 @@ export class SaleEditComponent implements OnInit {
       customerId: ['', Validators.required],
       branchId: ['', Validators.required],
       saleDate: ['', Validators.required],
-      total: [0, [Validators.required, Validators.min(0)]],
-      cancelled: [false]
+      items: this.fb.array([])
     });
   }
 
-  loadSale(): void {
+  get items() {
+    return this.form.get('items') as FormArray;
+  }
+
+  addItem(itemData?: any) {
+    this.items.push(this.fb.group({
+      productId: [itemData?.productId || '', Validators.required],
+      quantity: [itemData?.quantity || 1, Validators.required],
+      unitPrice: [itemData?.unitPrice || 0, Validators.required]
+    }));
+  }
+
+  removeItem(index: number) {
+    this.items.removeAt(index);
+  }
+
+  loadCustomers() {
+    this.customerService.getAll().subscribe({
+      next: (data) => this.customers = data,
+      error: (err) => console.error('Erro ao carregar customers', err)
+    });
+  }
+
+  loadBranches() {
+    this.branchService.getAll().subscribe({
+      next: (data) => this.branches = data,
+      error: (err) => console.error('Erro ao carregar branches', err)
+    });
+  }
+
+  loadProducts() {
+    this.productService.getAll().subscribe({
+      next: (data) => this.products = data,
+      error: (err) => console.error('Erro ao carregar produtos', err)
+    });
+  }
+
+  loadSale() {
     this.saleService.getById(this.id).subscribe({
-      next: (sale) => {
+      next: (response) => {
+        const sale = response;
         this.form.patchValue({
           customerId: sale.customerId,
           branchId: sale.branchId,
-          saleDate: this.formatDateForInput(sale.date),
-          total: sale.total,
-          cancelled: sale.cancelled
+          saleDate: sale.date.substring(0, 10) // Ajuste para input type="date"
+        });
+
+        sale.items.forEach((item: any) => {
+          this.addItem({
+            productId: item.productId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice
+          });
         });
       },
       error: (err) => console.error('Erro ao carregar venda', err)
     });
   }
 
-  loadCustomers(): void {
-    this.customerService.getAll().subscribe({
-      next: (customers) => this.customers = customers,
-      error: (err) => console.error('Erro ao carregar clientes', err)
-    });
+  onProductChange(index: number): void {
+    const item = this.items.at(index);
+    const productId = item.get('productId')?.value;
+    const product = this.products.find(p => p.id === productId);
+    if (product) {
+      item.patchValue({ unitPrice: product.price });
+    }
   }
 
-  loadBranches(): void {
-    this.branchService.getAll().subscribe({
-      next: (branches) => this.branches = branches,
-      error: (err) => console.error('Erro ao carregar filiais', err)
-    });
+  onQuantityChange(index: number): void {
+    const item = this.items.at(index);
+    const quantity = item.get('quantity')?.value;
+
+    if (quantity > 20) {
+      this.errorMessage = 'Não é permitido vender mais de 20 itens idênticos.';
+      this.discountMessage = '';
+      return;
+    }
+
+    this.errorMessage = '';
+
+    if (quantity >= 10 && quantity <= 20) {
+      this.discountMessage = 'Você recebeu 20% de desconto por comprar entre 10 e 20 itens!';
+    } else if (quantity >= 4) {
+      this.discountMessage = 'Você recebeu 10% de desconto por comprar 4 ou mais itens!';
+    } else {
+      this.discountMessage = 'Sem desconto para compras abaixo de 4 itens.';
+    }
+  }
+
+  get total(): number {
+    return this.items.controls.reduce((acc, curr) => {
+      const quantity = curr.get('quantity')?.value || 0;
+      const price = curr.get('unitPrice')?.value || 0;
+
+      let itemTotal = quantity * price;
+
+      if (quantity >= 10 && quantity <= 20) {
+        itemTotal *= 0.8; // 20% de desconto
+      } else if (quantity >= 4) {
+        itemTotal *= 0.9; // 10% de desconto
+      }
+
+      return acc + itemTotal;
+    }, 0);
   }
 
   update(): void {
     if (this.form.valid) {
-      const updatedSale = this.form.value;
-      this.saleService.update(this.id, updatedSale).subscribe({
+      this.saleService.update(this.id, this.form.value).subscribe({
         next: () => this.router.navigate(['/sales']),
         error: (err) => console.error('Erro ao atualizar venda', err)
       });
     }
-  }
-
-  private formatDateForInput(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toISOString().substring(0, 10); // Formato yyyy-MM-dd
   }
 }
