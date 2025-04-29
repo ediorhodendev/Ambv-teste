@@ -1,0 +1,10 @@
+<div class="container mt-4" *ngIf="branch">
+  <h2>Branch Details</h2>
+
+  <mat-card>
+    <mat-card-title>{{ branch.name }}</mat-card-title>
+    <mat-card-content>
+      <p><strong>Location:</strong> {{ branch.location }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,17 @@
+<div class="container" *ngIf="sale">
+  <mat-card class="sale-card">
+    <mat-card-header>
+      <mat-card-title>Sale Details</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p><strong>Sale Number:</strong> {{ sale.id }}</p>
+      <p><strong>Sale Date:</strong> {{ sale.date | date: 'shortDate' }}</p>
+      <p><strong>Total Amount:</strong> {{ sale.total | currency }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="!sale" class="container">
+  <p>Loading sale details...</p>
+</div>

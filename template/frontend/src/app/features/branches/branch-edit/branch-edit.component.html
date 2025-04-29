@@ -1,0 +1,21 @@
+<div class="container mt-4">
+  <h2>Edit Branch</h2>
+
+  <form [formGroup]="form" (ngSubmit)="update()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Edit branch name">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Location</mat-label>
+      <input matInput formControlName="location" placeholder="Edit branch location">
+    </mat-form-field>
+
+    <button mat-raised-button color="accent" type="submit" [disabled]="form.invalid">
+      Update Branch
+    </button>
+  </form>
+</div>
+
+

@@ -1,0 +1,28 @@
+<div class="container mt-4">
+  <mat-card>
+    <h2>Edit Customer</h2>
+
+    <form [formGroup]="form" (ngSubmit)="update()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" required />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone" required />
+      </mat-form-field>
+
+      <div class="button-group mt-4">
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          Update
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>

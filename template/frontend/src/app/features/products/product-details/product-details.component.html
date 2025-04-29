@@ -1,0 +1,12 @@
+<div class="container mt-4" *ngIf="product">
+  <h2>Product Details</h2>
+
+  <mat-card>
+    <mat-card-title>{{ product.name }}</mat-card-title>
+    <mat-card-content>
+      <p><strong>Description:</strong> {{ product.description }}</p>
+      <p><strong>Price:</strong> {{ product.price | currency }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+

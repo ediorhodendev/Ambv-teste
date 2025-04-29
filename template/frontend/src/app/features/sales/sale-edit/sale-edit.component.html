@@ -1,0 +1,45 @@
+<div class="edit-sale-container">
+  <mat-card class="edit-sale-card">
+    <h2 class="text-center mb-4">Edit Sale</h2>
+
+    <form [formGroup]="form" (ngSubmit)="update()" class="d-flex flex-column gap-3">
+      
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Customer</mat-label>
+        <mat-select formControlName="customerId" required>
+          <mat-option *ngFor="let customer of customers" [value]="customer.id">
+            {{ customer.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Branch</mat-label>
+        <mat-select formControlName="branchId" required>
+          <mat-option *ngFor="let branch of branches" [value]="branch.id">
+            {{ branch.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sale Date</mat-label>
+        <input matInput formControlName="saleDate" type="date" required>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Total</mat-label>
+        <input matInput formControlName="total" type="number" required>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="cancelled">Cancelled</mat-checkbox>
+
+      <div class="d-flex justify-content-center mt-4">
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+          Update Sale
+        </button>
+      </div>
+
+    </form>
+  </mat-card>
+</div>
