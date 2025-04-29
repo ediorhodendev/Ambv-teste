@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+
 import { CustomerService } from '../../../core/services/customers.service';
 import { Customer } from '../../../core/models/customer.model';
 
@@ -24,7 +25,10 @@ import { Customer } from '../../../core/models/customer.model';
 })
 export class CustomerListComponent implements OnInit {
   customers: Customer[] = [];
-  displayedColumns: string[] = ['name', 'email', 'phone', 'actions'];
+  displayedColumns: string[] = ['name', 'email', 'actions'];
+
+  pageIndex = 0;
+  pageSize = 10;
 
   constructor(
     private customerService: CustomerService,
@@ -61,5 +65,26 @@ export class CustomerListComponent implements OnInit {
 
   navigateToDetails(id: string): void {
     this.router.navigate(['/customers/details', id]);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.customers.length / this.pageSize);
+  }
+
+  get pagedCustomers(): Customer[] {
+    const start = this.pageIndex * this.pageSize;
+    return this.customers.slice(start, start + this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.pageIndex > 0) {
+      this.pageIndex--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageIndex < this.totalPages - 1) {
+      this.pageIndex++;
+    }
   }
 }

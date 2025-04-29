@@ -5325,9 +5325,11 @@ export {
   ObserversModule,
   addAriaReferencedId,
   removeAriaReferencedId,
+  AriaDescriber,
   ActiveDescendantKeyManager,
   LiveAnnouncer,
   FocusMonitor,
+  A11yModule,
   Directionality,
   BidiModule,
   VERSION2 as VERSION,
@@ -5376,4 +5378,4 @@ export {
   MatRippleLoader,
   _MatInternalFormField
 };
-//# sourceMappingURL=chunk-OJW2ZGBM.js.map
+//# sourceMappingURL=chunk-NCPHG6MZ.js.map

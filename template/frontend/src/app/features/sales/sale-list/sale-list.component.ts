@@ -5,6 +5,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+
 import { SaleService } from '../../../core/services/sales.service';
 import { Sale } from '../../../core/models/sale.model';
 
@@ -24,7 +25,10 @@ import { Sale } from '../../../core/models/sale.model';
 })
 export class SaleListComponent implements OnInit {
   sales: Sale[] = [];
-  displayedColumns: string[] = ['customerName', 'branchName', 'date', 'cancelled', 'total', 'actions'];
+  displayedColumns: string[] = ['customerName', 'branchName', 'date', 'total', 'actions'];
+
+  pageIndex = 0;
+  pageSize = 10;
 
   constructor(
     private saleService: SaleService,
@@ -62,4 +66,26 @@ export class SaleListComponent implements OnInit {
   navigateToDetails(id: string): void {
     this.router.navigate(['/sales/details', id]);
   }
+
+  get totalPages(): number {
+    return Math.ceil(this.sales.length / this.pageSize);
+  }
+
+  get pagedSales(): Sale[] {
+    const start = this.pageIndex * this.pageSize;
+    return this.sales.slice(start, start + this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.pageIndex > 0) {
+      this.pageIndex--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.pageIndex < this.totalPages - 1) {
+      this.pageIndex++;
+    }
+  }
 }
+
